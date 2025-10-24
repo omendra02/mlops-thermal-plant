@@ -51,6 +51,10 @@ models/
 *.onnx
 *.pb
 
+# Output and results
+output/
+results/
+
 # Data files (can be large - keep only scripts)
 data/*.csv
 data/*.pdf
