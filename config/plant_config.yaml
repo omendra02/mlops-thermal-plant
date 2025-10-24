@@ -1,0 +1,139 @@
+# Thermal Plant Configuration
+plants:
+  - plant_name: "Thermal Plant Alpha"
+    fuel_type: "Coal"
+    capacity_mw: 500
+    location:
+      country: "India"
+      state: "Maharashtra"
+      coordinates:
+        lat: 19.0760
+        lon: 72.8777
+    
+    # Sensor simulation settings
+    simulation:
+      update_interval: 1.0  # seconds
+      anomaly_probability: 0.05
+      enable_anomalies: true
+      
+    # Equipment specifications
+    equipment:
+      turbines:
+        count: 2
+        type: "Steam Turbine"
+        max_capacity_mw: 250
+        
+      generators:
+        count: 2
+        type: "Synchronous Generator"
+        voltage_kv: 11
+        
+      boilers:
+        count: 1
+        type: "Pulverized Coal Boiler"
+        max_pressure_bar: 180
+        
+      cooling_system:
+        type: "Cooling Tower"
+        capacity_mw: 50
+        
+  - plant_name: "Thermal Plant Beta"
+    fuel_type: "Gas"
+    capacity_mw: 300
+    location:
+      country: "India"
+      state: "Gujarat"
+      coordinates:
+        lat: 23.0225
+        lon: 72.5714
+        
+    simulation:
+      update_interval: 0.5  # seconds
+      anomaly_probability: 0.03
+      enable_anomalies: true
+      
+    equipment:
+      turbines:
+        count: 1
+        type: "Gas Turbine"
+        max_capacity_mw: 300
+        
+      generators:
+        count: 1
+        type: "Synchronous Generator"
+        voltage_kv: 11
+        
+      boilers:
+        count: 1
+        type: "Heat Recovery Steam Generator"
+        max_pressure_bar: 120
+        
+      cooling_system:
+        type: "Air Cooled"
+        capacity_mw: 30
+
+# Global sensor configurations
+sensors:
+  steam_temperature:
+    unit: "°C"
+    normal_range: [480, 520]
+    critical_range: [450, 550]
+    alarm_thresholds:
+      high: 540
+      low: 460
+      
+  steam_pressure:
+    unit: "bar"
+    normal_range: [140, 160]
+    critical_range: [120, 180]
+    alarm_thresholds:
+      high: 170
+      low: 130
+      
+  turbine_vibration:
+    unit: "mm/s"
+    normal_range: [0.5, 2.0]
+    critical_range: [0.0, 5.0]
+    alarm_thresholds:
+      high: 3.0
+      low: 0.3
+      
+  generator_temperature:
+    unit: "°C"
+    normal_range: [60, 80]
+    critical_range: [40, 100]
+    alarm_thresholds:
+      high: 90
+      low: 50
+      
+  cooling_water_temp:
+    unit: "°C"
+    normal_range: [25, 35]
+    critical_range: [15, 45]
+    alarm_thresholds:
+      high: 40
+      low: 20
+      
+  fuel_flow_rate:
+    unit: "kg/s"
+    normal_range: [50, 80]
+    critical_range: [30, 100]
+    alarm_thresholds:
+      high: 90
+      low: 40
+      
+  oxygen_level:
+    unit: "%"
+    normal_range: [2.5, 3.5]
+    critical_range: [2.0, 4.0]
+    alarm_thresholds:
+      high: 3.8
+      low: 2.2
+      
+  load_factor:
+    unit: "%"
+    normal_range: [70, 95]
+    critical_range: [50, 100]
+    alarm_thresholds:
+      high: 98
+      low: 60

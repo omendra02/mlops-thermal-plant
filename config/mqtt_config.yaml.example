@@ -1,0 +1,44 @@
+# MQTT Configuration for Thermal Plant IoT
+# Copy this file to mqtt_config.yaml and update with your credentials
+
+mqtt:
+  broker:
+    host: "localhost"
+    port: 1883
+    keepalive: 60
+
+  # Authentication (optional)
+  authentication:
+    username: null
+    password: null
+
+  # Client settings
+  client:
+    id: "thermal_plant_client"
+    clean_session: true
+    protocol_version: 4  # MQTT v3.1.1
+
+  # Topics configuration
+  topics:
+    sensor_data: "thermal_plant/{plant_name}/sensors"
+    alerts: "thermal_plant/{plant_name}/alerts"
+    commands: "thermal_plant/{plant_name}/commands"
+    status: "thermal_plant/{plant_name}/status"
+
+  # Quality of Service levels
+  qos:
+    sensor_data: 1
+    alerts: 2
+    commands: 2
+    status: 1
+
+  # Connection settings
+  connection:
+    reconnect_attempts: 5
+    reconnect_delay: 5
+    timeout: 30
+
+  # Data buffering
+  buffer:
+    max_size: 1000
+    flush_interval: 60  # seconds

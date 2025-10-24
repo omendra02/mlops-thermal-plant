@@ -1,0 +1,70 @@
+# Core ML and Data Science
+pandas>=1.5.0
+numpy>=1.21.0
+scikit-learn>=1.1.0
+joblib>=1.2.0
+
+# Deep Learning
+tensorflow>=2.10.0
+torch>=1.12.0
+torchvision>=0.13.0
+
+# IoT and MQTT
+paho-mqtt>=1.6.0
+
+# Dashboard and Visualization
+streamlit>=1.25.0
+plotly>=5.10.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# MLOps and Experiment Tracking
+mlflow>=2.5.0
+dvc>=2.10.0
+
+# Data Processing and Feature Engineering
+pandas-profiling>=3.5.0
+feature-engine>=1.6.0
+
+# Database and Storage
+psycopg2-binary>=2.9.0
+pymongo>=4.2.0
+redis>=4.3.0
+influxdb-client>=1.28.0
+boto3>=1.26.0
+
+# Configuration and Utilities
+pyyaml>=6.0
+python-dotenv>=0.20.0
+click>=8.1.0
+tqdm>=4.64.0
+
+# Monitoring and Logging
+prometheus-client>=0.14.0
+structlog>=22.1.0
+
+# Testing
+pytest>=7.1.0
+pytest-cov>=3.0.0
+
+# Development Tools
+black>=22.6.0
+flake8>=5.0.0
+mypy>=0.971
+
+# Time Series and Signal Processing
+scipy>=1.9.0
+statsmodels>=0.13.0
+
+# Web Framework (for API)
+fastapi>=0.78.0
+uvicorn>=0.18.0
+
+# Container and Deployment
+docker>=6.0.0
+kubernetes>=24.2.0
+
+# Additional Utilities
+requests>=2.28.0
+python-dateutil>=2.8.0
+pytz>=2022.2

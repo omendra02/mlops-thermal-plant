@@ -1,0 +1,288 @@
+🏗️ THERMAL PLANT MLOPS - CODE STRUCTURE DIAGRAM
+=================================================
+
+📁 PROJECT FOLDER STRUCTURE
+┌─────────────────────────────────────────────────────────────┐
+│                mlops-thermal-plant/                        │
+│                                                             │
+│  📊 data/                                                   │
+│  ├── generate_data.py      ← Creates fake sensor data      │
+│  ├── sensor_data.csv       ← 1000+ sensor readings        │
+│  └── sensor_data_with_anomalies.csv ← Data + AI results    │
+│                                                             │
+│  🤖 src/                                                    │
+│  ├── train.py              ← Teaches AI what's normal     │
+│  └── predict.py            ← Uses AI to find problems     │
+│                                                             │
+│  💾 model/                                                  │
+│  └── isolation_forest.pkl  ← Trained AI brain             │
+│                                                             │
+│  📱 dashboard.py            ← Website interface            │
+│  📚 README.md              ← Documentation                 │
+│  🔧 requirements.txt       ← Python packages needed       │
+│  🐳 Dockerfile             ← Container setup              │
+│  🐳 docker-compose.yml     ← Full stack deployment        │
+└─────────────────────────────────────────────────────────────┘
+
+📊 DATA GENERATION CODE (generate_data.py)
+┌─────────────────────────────────────────────────────────────┐
+│                    🌡️ SENSOR DATA CREATION                │
+│                                                             │
+│  import numpy as np                                        │
+│  import pandas as pd                                       │
+│                                                             │
+│  # Create 1000 time points (one per hour)                 │
+│  N = 1000                                                  │
+│  timestamps = pd.date_range(start="2025-01-01", periods=N) │
+│                                                             │
+│  # Generate realistic sensor values                        │
+│  steam_temp = 500 + np.random.normal(0, 10, size=N)       │
+│  vibration = 0.3 + 0.01 * sin(...) + random_noise         │
+│  vibration[800:] += 0.1  ← Inject some anomalies          │
+│                                                             │
+│  # Save to CSV file                                        │
+│  df.to_csv("data/sensor_data.csv")                        │
+│                                                             │
+│  Output: 1000 rows × 9 columns                            │
+│  - timestamp, plant_name, fuel_type, capacity_mw          │
+│  - temperature, vibration, pressure, flow_rate, load_factor│
+└─────────────────────────────────────────────────────────────┘
+
+🤖 AI TRAINING CODE (train.py)
+┌─────────────────────────────────────────────────────────────┐
+│                   🧠 TEACHING THE AI                      │
+│                                                             │
+│  import pandas as pd                                       │
+│  from sklearn.ensemble import IsolationForest              │
+│  import joblib                                             │
+│                                                             │
+│  # Load sensor data                                        │
+│  df = pd.read_csv("data/sensor_data.csv")                 │
+│                                                             │
+│  # Check we have the right data                            │
+│  required_columns = ["temperature", "vibration"]           │
+│  if not all(col in df.columns for col in required_columns):│
+│      raise ValueError("Missing required columns")          │
+│                                                             │
+│  # Train the AI algorithm                                  │
+│  model = IsolationForest(                                  │
+│      contamination=0.05,  ← Expect 5% anomalies           │
+│      random_state=42      ← For reproducible results      │
+│  )                                                         │
+│  model.fit(df[["temperature", "vibration"]])              │
+│                                                             │
+│  # Save the trained AI                                     │
+│  joblib.dump(model, "model/isolation_forest.pkl")         │
+│                                                             │
+│  Result: Trained AI model saved to file                   │
+└─────────────────────────────────────────────────────────────┘
+
+🔍 ANOMALY DETECTION CODE (predict.py)
+┌─────────────────────────────────────────────────────────────┐
+│                   🔍 FINDING PROBLEMS                     │
+│                                                             │
+│  import pandas as pd                                       │
+│  import joblib                                             │
+│                                                             │
+│  # Load data and trained AI                                │
+│  df = pd.read_csv("data/sensor_data.csv")                 │
+│  model = joblib.load("model/isolation_forest.pkl")        │
+│                                                             │
+│  # Run AI on all sensor readings                           │
+│  df["anomaly"] = model.predict(df[["temperature", "vibration"]])│
+│                                                             │
+│  # Convert AI output to human-readable format              │
+│  # AI returns: -1 (anomaly) or 1 (normal)                 │
+│  # We want: 1 (anomaly) or 0 (normal)                     │
+│  df["anomaly"] = df["anomaly"].map({1: 0, -1: 1})         │
+│                                                             │
+│  # Save results                                            │
+│  df.to_csv("data/sensor_data_with_anomalies.csv")         │
+│                                                             │
+│  Result: 1000 records + anomaly flags (0 or 1)            │
+│  Example: 50 anomalies detected (5% of data)              │
+└─────────────────────────────────────────────────────────────┘
+
+📱 DASHBOARD CODE (dashboard.py)
+┌─────────────────────────────────────────────────────────────┐
+│                   🌐 WEB INTERFACE                        │
+│                                                             │
+│  import streamlit as st                                    │
+│  import pandas as pd                                       │
+│                                                             │
+│  # Load data with anomaly flags                            │
+│  df = pd.read_csv("data/sensor_data_with_anomalies.csv")  │
+│                                                             │
+│  # Create website                                          │
+│  st.set_page_config(page_title="Thermal Plant Dashboard") │
+│  st.title("⚙️ Thermal Plant Sensor Dashboard")           │
+│                                                             │
+│  # Show plant information                                  │
+│  plant_name = df["plant_name"].iloc[0]                    │
+│  fuel_type = df["fuel_type"].iloc[0]                      │
+│  capacity = df["capacity_mw"].iloc[0]                     │
+│  st.markdown(f"Plant: {plant_name} | Fuel: {fuel_type}")  │
+│                                                             │
+│  # Create sensor trend charts                              │
+│  sensor_cols = ["temperature", "vibration", "pressure"]   │
+│  for col in sensor_cols:                                  │
+│      st.line_chart(df[[col]])                             │
+│                                                             │
+│  # Show anomaly summary                                    │
+│  st.subheader("🚨 Anomalies Detected")                    │
+│  st.bar_chart(df["anomaly"].value_counts())               │
+│                                                             │
+│  # Show anomaly table                                      │
+│  st.dataframe(df[df["anomaly"] == 1])                     │
+│                                                             │
+│  # Download button                                         │
+│  st.download_button("📥 Download Anomaly Data",           │
+│                    df[df["anomaly"] == 1].to_csv())        │
+│                                                             │
+│  Result: Interactive website at http://localhost:8501     │
+└─────────────────────────────────────────────────────────────┘
+
+🔄 DATA FLOW BETWEEN FILES
+┌─────────────────────────────────────────────────────────────┐
+│                  📊 DATA FLOW DIAGRAM                     │
+│                                                             │
+│  generate_data.py                                          │
+│       │                                                    │
+│       ▼                                                    │
+│  sensor_data.csv (1000 rows, 9 columns)                   │
+│       │                                                    │
+│       ▼                                                    │
+│  train.py ────────────────────────────────────────────────▶│
+│       │                                                    │
+│       ▼                                                    │
+│  isolation_forest.pkl (trained AI model)                  │
+│       │                                                    │
+│       ▼                                                    │
+│  predict.py ──────────────────────────────────────────────▶│
+│       │                                                    │
+│       ▼                                                    │
+│  sensor_data_with_anomalies.csv (1000 rows + anomaly flags)│
+│       │                                                    │
+│       ▼                                                    │
+│  dashboard.py                                              │
+│       │                                                    │
+│       ▼                                                    │
+│  🌐 http://localhost:8501 (Interactive website)           │
+└─────────────────────────────────────────────────────────────┘
+
+🎯 KEY CONCEPTS EXPLAINED
+┌─────────────────────────────────────────────────────────────┐
+│                    🧠 MACHINE LEARNING                     │
+│                                                             │
+│  Isolation Forest Algorithm:                               │
+│  • Unsupervised learning (no labels needed)                │
+│  • Good at finding outliers/anomalies                      │
+│  • Works by isolating data points randomly                 │
+│  • Normal data gets isolated quickly                       │
+│  • Anomalous data takes longer to isolate                  │
+│                                                             │
+│  Example:                                                  │
+│  Normal vibration: 1.1mm/s → Isolated in 3 random splits  │
+│  Anomalous vibration: 8.5mm/s → Isolated in 15 splits     │
+│                                                             │
+│  Result: 8.5mm/s is flagged as anomaly! 🚨                │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    📊 DATA PROCESSING                     │
+│                                                             │
+│  CSV Files (Comma Separated Values):                      │
+│  • Easy to read and write                                 │
+│  • Can be opened in Excel                                 │
+│  • Perfect for sensor data                                │
+│                                                             │
+│  Example CSV content:                                     │
+│  timestamp,plant_name,temperature,vibration,anomaly       │
+│  2025-01-01 00:00:00,ZAWAR MINES,485.2,1.1,0             │
+│  2025-01-01 01:00:00,ZAWAR MINES,650.1,8.5,1             │
+│                                                             │
+│  Columns:                                                  │
+│  • timestamp: When the reading was taken                  │
+│  • plant_name: Which power plant                          │
+│  • temperature: Steam temperature in Celsius              │
+│  • vibration: Machine vibration in mm/s                   │
+│  • anomaly: 0=normal, 1=problem detected                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    🌐 WEB DASHBOARD                       │
+│                                                             │
+│  Streamlit Framework:                                      │
+│  • Python library for creating web apps                   │
+│  • No HTML/CSS/JavaScript needed                          │
+│  • Perfect for data science dashboards                    │
+│                                                             │
+│  Dashboard Components:                                     │
+│  • Line charts: Show sensor trends over time              │
+│  • Bar charts: Show anomaly counts                        │
+│  • Data tables: Show detailed records                     │
+│  • Download buttons: Export data as CSV                   │
+│                                                             │
+│  User Interaction:                                         │
+│  • Click on charts to zoom                                │
+│  • Hover over data points for details                     │
+│  • Download anomaly data for analysis                     │
+│  • Real-time updates (when connected to live data)        │
+└─────────────────────────────────────────────────────────────┘
+
+🚀 HOW TO RUN THE COMPLETE SYSTEM
+┌─────────────────────────────────────────────────────────────┐
+│                  💻 COMMAND LINE STEPS                    │
+│                                                             │
+│  1. 📁 Navigate to project folder:                        │
+│     $ cd mlops-thermal-plant                               │
+│                                                             │
+│  2. 🐍 Activate Python environment:                       │
+│     $ source .venv/bin/activate                           │
+│                                                             │
+│  3. 📊 Generate sensor data:                              │
+│     $ python data/generate_data.py                        │
+│     Output: Created 1000 sensor readings                   │
+│                                                             │
+│  4. 🤖 Train AI model:                                    │
+│     $ python src/train.py                                 │
+│     Output: Trained Isolation Forest model                 │
+│                                                             │
+│  5. 🔍 Detect anomalies:                                  │
+│     $ python src/predict.py                               │
+│     Output: Found 50 anomalies (5% detection rate)        │
+│                                                             │
+│  6. 📱 Launch dashboard:                                  │
+│     $ streamlit run dashboard.py                          │
+│     Output: Dashboard at http://localhost:8501            │
+│                                                             │
+│  7. 🌐 Open browser and view results!                     │
+└─────────────────────────────────────────────────────────────┘
+
+🎉 WHAT YOU'VE BUILT
+┌─────────────────────────────────────────────────────────────┐
+│                   🏆 ACHIEVEMENT SUMMARY                  │
+│                                                             │
+│  ✅ Complete MLOps Pipeline:                               │
+│     • Data generation and processing                       │
+│     • Machine learning model training                      │
+│     • Anomaly detection and prediction                     │
+│     • Interactive web dashboard                            │
+│     • Data export and analysis                             │
+│                                                             │
+│  ✅ Real-World Application:                                │
+│     • Monitors thermal power plant sensors                 │
+│     • Detects equipment problems early                     │
+│     • Prevents costly shutdowns                            │
+│     • Ensures worker safety                                │
+│     • Maintains reliable power supply                      │
+│                                                             │
+│  ✅ Technical Skills Learned:                              │
+│     • Python programming                                   │
+│     • Machine learning (Isolation Forest)                  │
+│     • Data processing with Pandas                          │
+│     • Web development with Streamlit                       │
+│     • MLOps best practices                                 │
+│                                                             │
+│  🚀 Ready for production deployment!                       │
+└─────────────────────────────────────────────────────────────┘

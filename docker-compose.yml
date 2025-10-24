@@ -1,0 +1,197 @@
+version: '3.8'
+
+services:
+  # Main MLOps Application
+  thermal-plant-app:
+    build:
+      context: .
+      target: production
+    container_name: thermal-plant-mlops
+    ports:
+      - "8501:8501"  # Streamlit dashboard
+      - "5000:5000"  # FastAPI (if implemented)
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./experiments:/app/experiments
+    environment:
+      - MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+      - PYTHONPATH=/app
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14
+    container_name: thermal-postgres
+    environment:
+      POSTGRES_DB: thermal_plant_db
+      POSTGRES_USER: thermal_user
+      POSTGRES_PASSWORD: thermal_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: thermal-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # InfluxDB for Time Series Data
+  influxdb:
+    image: influxdb:2.7
+    container_name: thermal-influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: influx_user
+      DOCKER_INFLUXDB_INIT_PASSWORD: influx_password
+      DOCKER_INFLUXDB_INIT_ORG: thermal_plant
+      DOCKER_INFLUXDB_INIT_BUCKET: thermal_plant_metrics
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # MLflow Server
+  mlflow:
+    image: python:3.9-slim
+    container_name: thermal-mlflow
+    command: >
+      sh -c "pip install mlflow psycopg2-binary &&
+             mlflow server --backend-store-uri postgresql://thermal_user:thermal_password@postgres:5432/thermal_plant_db 
+             --default-artifact-root s3://mlflow-artifacts 
+             --host 0.0.0.0 --port 5000"
+    ports:
+      - "5001:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://thermal_user:thermal_password@postgres:5432/thermal_plant_db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=s3://mlflow-artifacts
+    depends_on:
+      - postgres
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # MQTT Broker (Eclipse Mosquitto)
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: thermal-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # MinIO for S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: thermal-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # Grafana for Monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: thermal-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - influxdb
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # Prometheus for Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: thermal-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+  # Data Generator/Simulator
+  data-generator:
+    build:
+      context: .
+      target: development
+    container_name: thermal-data-generator
+    command: python -m mlops_thermal_plant.iot.sensor_simulator
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - mqtt
+      - redis
+    networks:
+      - thermal-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  influxdb_data:
+  mosquitto_data:
+  mosquitto_logs:
+  minio_data:
+  grafana_data:
+  prometheus_data:
+
+networks:
+  thermal-network:
+    driver: bridge

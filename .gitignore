@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files (large binary files)
+model/*.pkl
+model/*.h5
+model/*.pt
+model/*.pth
+*.pkl
+*.h5
+
+# Data files (can be large)
+data/*.csv
+data/*.pdf
+data/*.parquet
+data/*.json
+!data/generate_data.py
+
+# Sensitive configuration files
+config/database_config.yaml
+config/mqtt_config.yaml
+*.env
+.env.*
+secrets/
+credentials/
+
+# Logs
+*.log
+logs/
+mlruns/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+backup/
+backups/

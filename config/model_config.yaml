@@ -1,0 +1,126 @@
+# Model Configuration for Thermal Plant MLOps
+models:
+  # Isolation Forest Configuration
+  isolation_forest:
+    contamination: 0.05
+    random_state: 42
+    max_samples: "auto"
+    max_features: 1.0
+    bootstrap: false
+    n_estimators: 100
+    
+  # LSTM Autoencoder Configuration
+  lstm_autoencoder:
+    # Architecture
+    sequence_length: 60  # time steps
+    features: 8  # number of sensor features
+    encoding_dim: 32
+    hidden_dims: [64, 32]
+    dropout_rate: 0.2
+    
+    # Training parameters
+    batch_size: 32
+    epochs: 100
+    learning_rate: 0.001
+    optimizer: "adam"
+    loss_function: "mse"
+    
+    # Anomaly detection
+    threshold_percentile: 95
+    reconstruction_threshold: null  # Will be calculated during training
+    
+    # Early stopping
+    early_stopping:
+      patience: 10
+      monitor: "val_loss"
+      restore_best_weights: true
+      
+  # Gradient Boosting Configuration (for efficiency prediction)
+  gradient_boosting:
+    n_estimators: 100
+    learning_rate: 0.1
+    max_depth: 6
+    min_samples_split: 2
+    min_samples_leaf: 1
+    subsample: 1.0
+    random_state: 42
+    
+  # Model selection and ensemble
+  ensemble:
+    methods: ["isolation_forest", "lstm_autoencoder"]
+    voting_strategy: "majority"  # or "weighted"
+    weights: [0.6, 0.4]  # weights for each method
+    
+  # Model retraining
+  retraining:
+    trigger_threshold: 0.15  # retrain if drift exceeds 15%
+    min_samples: 1000
+    max_samples: 10000
+    retrain_frequency_hours: 24
+    
+  # Model validation
+  validation:
+    test_size: 0.2
+    cross_validation_folds: 5
+    scoring_metrics: ["accuracy", "precision", "recall", "f1"]
+
+# Feature engineering
+feature_engineering:
+  # Time-based features
+  time_features:
+    hour_of_day: true
+    day_of_week: true
+    month: true
+    
+  # Rolling statistics
+  rolling_windows: [5, 10, 30, 60]  # minutes
+  rolling_stats: ["mean", "std", "min", "max"]
+  
+  # Lag features
+  lag_features: [1, 2, 3, 5, 10]  # previous time steps
+  
+  # Derived features
+  derived_features:
+    efficiency: true
+    heat_rate: true
+    equipment_health: true
+    power_output: true
+
+# Data preprocessing
+preprocessing:
+  # Missing value handling
+  missing_values:
+    strategy: "interpolate"  # or "drop", "fill_mean"
+    
+  # Outlier detection
+  outlier_detection:
+    method: "iqr"  # or "zscore", "isolation_forest"
+    threshold: 3.0
+    
+  # Scaling/normalization
+  scaling:
+    method: "standard"  # or "minmax", "robust"
+    features: ["temperature", "pressure", "vibration", "flow_rate"]
+    
+  # Feature selection
+  feature_selection:
+    method: "correlation"  # or "mutual_info", "recursive"
+    threshold: 0.8
+
+# Model storage
+storage:
+  model_directory: "models"
+  experiment_directory: "experiments"
+  data_directory: "data"
+  
+  # Model versioning
+  versioning:
+    strategy: "timestamp"  # or "semantic"
+    keep_versions: 10
+    
+  # Model artifacts
+  artifacts:
+    save_model: true
+    save_preprocessor: true
+    save_metrics: true
+    save_predictions: true

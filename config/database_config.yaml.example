@@ -1,0 +1,140 @@
+# Database Configuration for Thermal Plant MLOps
+# Copy this file to database_config.yaml and update with your credentials
+
+# Primary database (PostgreSQL)
+postgresql:
+  host: "localhost"
+  port: 5432
+  database: "thermal_plant_db"
+  username: "your_username"
+  password: "your_password"
+
+  # Connection pool settings
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  pool_recycle: 3600
+
+  # Tables
+  tables:
+    sensor_data: "sensor_readings"
+    predictions: "anomaly_predictions"
+    models: "model_metadata"
+    experiments: "mlflow_experiments"
+    alerts: "system_alerts"
+
+# Time-series database (InfluxDB)
+influxdb:
+  host: "localhost"
+  port: 8086
+  database: "thermal_plant_metrics"
+  username: "your_username"
+  password: "your_password"
+
+  # Retention policies
+  retention_policies:
+    raw_data: "30d"
+    aggregated_data: "1y"
+    predictions: "90d"
+
+  # Measurements (tables)
+  measurements:
+    sensor_data: "sensor_metrics"
+    predictions: "anomaly_predictions"
+    system_metrics: "system_health"
+
+# NoSQL database (MongoDB) - for metadata and configuration
+mongodb:
+  host: "localhost"
+  port: 27017
+  database: "thermal_plant_metadata"
+  username: "your_username"
+  password: "your_password"
+
+  # Collections
+  collections:
+    plant_config: "plant_configurations"
+    equipment_metadata: "equipment_info"
+    maintenance_logs: "maintenance_records"
+    user_preferences: "user_settings"
+
+# Redis for caching and real-time data
+redis:
+  host: "localhost"
+  port: 6379
+  database: 0
+  password: null
+
+  # Cache settings
+  cache_settings:
+    default_ttl: 3600  # seconds
+    sensor_data_ttl: 300
+    predictions_ttl: 600
+    model_cache_ttl: 86400
+
+  # Key patterns
+  key_patterns:
+    sensor_data: "sensor:{plant}:{sensor_type}"
+    predictions: "pred:{plant}:{model_type}"
+    model_cache: "model:{model_name}:{version}"
+
+# Data Lake (S3-compatible storage)
+s3:
+  endpoint_url: "http://localhost:9000"  # MinIO
+  access_key: "your_access_key"
+  secret_key: "your_secret_key"
+  bucket_name: "thermal-plant-data"
+
+  # Data organization
+  paths:
+    raw_data: "raw/sensor_data/{year}/{month}/{day}"
+    processed_data: "processed/features/{year}/{month}"
+    model_artifacts: "models/{model_name}/{version}"
+    experiments: "experiments/{experiment_id}"
+
+# Backup and archival
+backup:
+  enabled: true
+  frequency: "daily"
+  retention_days: 30
+
+  # Backup locations
+  locations:
+    - type: "s3"
+      bucket: "thermal-plant-backup"
+      path: "backups/{date}"
+    - type: "local"
+      path: "/backups/thermal-plant"
+
+# Data quality and monitoring
+data_quality:
+  # Validation rules
+  validation_rules:
+    sensor_data:
+      required_fields: ["timestamp", "plant_name", "sensor_type", "value"]
+      data_types:
+        timestamp: "datetime"
+        plant_name: "string"
+        sensor_type: "string"
+        value: "float"
+
+    predictions:
+      required_fields: ["timestamp", "plant_name", "model_type", "prediction", "confidence"]
+      data_types:
+        timestamp: "datetime"
+        plant_name: "string"
+        model_type: "string"
+        prediction: "integer"
+        confidence: "float"
+
+  # Data quality checks
+  quality_checks:
+    completeness: 0.95  # minimum 95% complete
+    accuracy: 0.98      # minimum 98% accurate
+    consistency: 0.99   # minimum 99% consistent
+
+  # Monitoring
+  monitoring:
+    check_frequency: "hourly"
+    alert_threshold: 0.90
+    notification_channels: ["email", "slack"]
