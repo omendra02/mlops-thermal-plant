@@ -1,373 +1,233 @@
 # MLOps Thermal Power Plant Monitor
 
-A comprehensive MLOps pipeline for thermal power plant monitoring and anomaly detection using IoT integration, machine learning models, and real-time dashboards.
+![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## 🚀 Features
+A comprehensive MLOps pipeline for real-time thermal power plant monitoring and anomaly detection using IoT integration, machine learning models, and interactive dashboards.
 
-### Core Components
-- **IoT Integration**: MQTT client for real-time sensor data ingestion
-- **Advanced ML Models**: LSTM Autoencoder and Isolation Forest for anomaly detection
-- **Ensemble Learning**: Combines multiple models for improved accuracy
-- **Real-time Dashboard**: Streamlit-based monitoring interface
-- **MLflow Integration**: Experiment tracking and model registry
-- **Docker Containerization**: Full containerized deployment
-- **Multi-database Support**: PostgreSQL, InfluxDB, Redis, MongoDB
+## Features
 
-### Key Capabilities
-- Real-time sensor data simulation and ingestion
-- Advanced anomaly detection with multiple ML algorithms
-- Model training, validation, and deployment pipeline
-- Experiment tracking and model versioning
-- Real-time monitoring dashboard with interactive visualizations
-- Automated model retraining and deployment
-- Comprehensive logging and monitoring
+- **Real-time IoT Integration**: MQTT-based sensor data ingestion
+- **Advanced ML Models**: Ensemble of Isolation Forest and LSTM Autoencoder for anomaly detection
+- **MLflow Integration**: Complete experiment tracking, model versioning, and registry
+- **Interactive Dashboard**: Streamlit-based real-time monitoring interface
+- **Production Ready**: Dockerized deployment with multi-database support
+- **Scalable Architecture**: Supports PostgreSQL, InfluxDB, Redis, and MongoDB
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 mlops-thermal-plant/
-├── mlops_thermal_plant/          # Main Python package
-│   ├── __init__.py
-│   ├── core/                     # Core ML and data processing
-│   │   ├── models/              # ML models (LSTM, Isolation Forest, Ensemble)
-│   │   ├── data/                # Data processing and MLflow integration
-│   │   └── monitoring/          # Monitoring and alerting
-│   ├── iot/                     # IoT integration
-│   │   ├── mqtt_client.py       # MQTT client for sensor data
-│   │   └── sensor_simulator.py  # Sensor data simulator
-│   └── dashboard/               # Streamlit dashboard
-│       └── dashboard_app.py     # Main dashboard application
-├── config/                      # Configuration files
-│   ├── mqtt_config.yaml        # MQTT broker configuration
-│   ├── plant_config.yaml       # Plant and sensor configurations
-│   ├── model_config.yaml       # ML model configurations
-│   ├── database_config.yaml    # Database connection settings
-│   ├── mosquitto.conf          # MQTT broker setup
-│   ├── prometheus.yml          # Prometheus monitoring config
-│   └── init.sql                # Database initialization
-├── data/                        # Data storage
-├── models/                      # Trained model artifacts
-├── experiments/                 # MLflow experiments
-├── logs/                        # Application logs
-├── docker-compose.yml          # Docker Compose configuration
-├── Dockerfile                  # Docker container definition
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+├── mlops_thermal_plant/      # Main package
+│   ├── core/                 # ML models and data processing
+│   │   ├── models/          # Isolation Forest, LSTM, Ensemble
+│   │   └── data/            # Data processors and MLflow manager
+│   ├── iot/                 # MQTT client and sensor simulator
+│   └── dashboard/           # Streamlit dashboard application
+├── config/                   # Configuration templates
+│   ├── *.yaml.example       # Example configurations
+│   ├── model_config.yaml    # ML model parameters
+│   ├── plant_config.yaml    # Plant sensor configurations
+│   └── prometheus.yml       # Monitoring setup
+├── scripts/                  # Utility scripts
+│   ├── train_models.py      # Model training pipeline
+│   └── start_dashboard.py   # Dashboard launcher
+├── tests/                    # Unit and integration tests
+├── docs/                     # Additional documentation
+├── examples/                 # Example usage and data generation
+├── docker-compose.yml        # Docker services orchestration
+├── Dockerfile                # Container definition
+└── setup.py                  # Package installation
+
 ```
 
-## 🛠️ Installation & Setup
+## Quick Start
 
 ### Prerequisites
+
 - Python 3.9+
-- Docker and Docker Compose
+- Docker & Docker Compose (for full stack)
 - Git
 
-### Quick Start with Docker
+### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd mlops-thermal-plant
-   ```
-
-2. **Start all services**
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Access the applications**
-   - Streamlit Dashboard: http://localhost:8501
-   - MLflow UI: http://localhost:5001
-   - Grafana: http://localhost:3000 (admin/admin)
-   - Prometheus: http://localhost:9090
-
-### Manual Installation
-
-1. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up databases** (optional - for production)
-   ```bash
-   # Start PostgreSQL, Redis, InfluxDB using Docker
-   docker-compose up -d postgres redis influxdb mqtt
-   ```
-
-4. **Generate sample data**
-   ```bash
-   python data/generate_data.py
-   ```
-
-5. **Train initial models**
-   ```bash
-   python src/train_model.py
-   ```
-
-6. **Run the dashboard**
-   ```bash
-   streamlit run mlops_thermal_plant/dashboard/dashboard_app.py
-   ```
-
-## 🎯 Usage
-
-### 1. Data Generation and Simulation
-
-```python
-from mlops_thermal_plant.iot.sensor_simulator import ThermalPlantSensorSimulator
-
-# Create sensor simulator
-simulator = ThermalPlantSensorSimulator(plant_config)
-
-# Start simulation
-simulator.start_simulation()
-
-# Get current data
-current_data = simulator.get_current_data()
+```bash
+git clone https://github.com/omendra02/mlops-thermal-plant.git
+cd mlops-thermal-plant
 ```
 
-### 2. Model Training
-
-```python
-from mlops_thermal_plant.core.models import LSTMAutoencoder, EnsembleAnomalyDetector
-from mlops_thermal_plant.core.data import MLflowManager
-
-# Initialize MLflow
-mlflow_manager = MLflowManager(config)
-
-# Train LSTM Autoencoder
-with mlflow_manager.start_run():
-    model = LSTMAutoencoder(model_config)
-    model.fit(X_train)
-    mlflow_manager.log_model(model, "lstm_autoencoder")
+2. **Set up virtual environment**
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### 3. Real-time Monitoring
-
-```python
-from mlops_thermal_plant.iot.mqtt_client import ThermalPlantMQTTSubscriber
-
-# Subscribe to sensor data
-subscriber = ThermalPlantMQTTSubscriber(mqtt_config)
-subscriber.start(["thermal_plant/alpha/sensors"])
-
-# Get latest data
-latest_data = subscriber.get_latest_data(100)
+3. **Configure settings**
+```bash
+# Copy example configs and update with your credentials
+cp config/database_config.yaml.example config/database_config.yaml
+cp config/mqtt_config.yaml.example config/mqtt_config.yaml
 ```
 
-### 4. Anomaly Detection
-
-```python
-from mlops_thermal_plant.core.models import EnsembleAnomalyDetector
-
-# Load trained ensemble model
-ensemble = EnsembleAnomalyDetector(config)
-ensemble.load_models("models/ensemble")
-
-# Predict anomalies
-predictions = ensemble.predict(sensor_data)
-probabilities = ensemble.predict_proba(sensor_data)
+4. **Generate sample data** (for testing)
+```bash
+python examples/generate_data.py
 ```
 
-## 🔧 Configuration
-
-### MQTT Configuration (`config/mqtt_config.yaml`)
-```yaml
-mqtt:
-  broker:
-    host: "localhost"
-    port: 1883
-  topics:
-    sensor_data: "thermal_plant/{plant_name}/sensors"
+5. **Train models**
+```bash
+python scripts/train_models.py
 ```
+
+6. **Start dashboard**
+```bash
+python scripts/start_dashboard.py
+```
+
+### Docker Deployment
+
+Run the complete stack with all services:
+
+```bash
+docker-compose up -d
+```
+
+Access the applications:
+- **Streamlit Dashboard**: http://localhost:8501
+- **MLflow UI**: http://localhost:5001
+- **Grafana**: http://localhost:3000 (admin/admin)
+- **Prometheus**: http://localhost:9090
+
+## Architecture
+
+### Data Flow
+
+1. **Data Ingestion**: IoT sensors → MQTT Broker → Data Processor
+2. **Storage**: Multi-tier storage (PostgreSQL, InfluxDB, Redis)
+3. **ML Pipeline**: Feature Engineering → Model Training → Prediction
+4. **Monitoring**: Real-time dashboard + Prometheus + Grafana
+5. **MLOps**: MLflow experiment tracking and model registry
+
+### ML Models
+
+- **Isolation Forest**: Fast, unsupervised anomaly detection
+- **LSTM Autoencoder**: Deep learning-based pattern recognition
+- **Ensemble Model**: Combines both models for improved accuracy
+
+## Configuration
 
 ### Model Configuration (`config/model_config.yaml`)
+
 ```yaml
-models:
-  lstm_autoencoder:
-    sequence_length: 60
-    encoding_dim: 32
-    epochs: 100
-  isolation_forest:
-    contamination: 0.05
-    n_estimators: 100
+isolation_forest:
+  contamination: 0.05
+  n_estimators: 100
+
+lstm_autoencoder:
+  sequence_length: 50
+  encoding_dim: 32
+  epochs: 100
+  batch_size: 32
 ```
 
 ### Plant Configuration (`config/plant_config.yaml`)
-```yaml
-plants:
-  - plant_name: "Thermal Plant Alpha"
-    fuel_type: "Coal"
-    capacity_mw: 500
-    sensors:
-      steam_temperature:
-        normal_range: [480, 520]
-        unit: "°C"
-```
 
-## 📊 Dashboard Features
+Configure sensor types, thresholds, and monitoring parameters.
 
-### Real-time Monitoring Tab
-- Live sensor readings and trends
-- Equipment health indicators
-- Performance metrics
-- Alert notifications
+## Development
 
-### Anomaly Detection Tab
-- Model predictions and confidence scores
-- Anomaly timeline visualization
-- Model performance metrics
-- Feature importance analysis
-
-### MLflow Experiments Tab
-- Experiment tracking and comparison
-- Model versioning and registry
-- Performance metrics visualization
-- Model deployment status
-
-### Model Training Tab
-- Interactive model training interface
-- Hyperparameter tuning
-- Training progress monitoring
-- Model evaluation results
-
-## 🔄 MLOps Pipeline
-
-### 1. Data Ingestion
-- IoT sensors → MQTT → Data processing pipeline
-- Real-time data validation and quality checks
-- Data storage in multiple databases
-
-### 2. Model Development
-- Feature engineering and preprocessing
-- Model training with MLflow tracking
-- Cross-validation and hyperparameter tuning
-- Model evaluation and selection
-
-### 3. Model Deployment
-- Model versioning and registry
-- Automated deployment pipeline
-- A/B testing and gradual rollout
-- Performance monitoring
-
-### 4. Monitoring & Retraining
-- Real-time model performance monitoring
-- Data drift detection
-- Automated retraining triggers
-- Model rollback capabilities
-
-## 🐳 Docker Services
-
-| Service | Port | Description |
-|---------|------|-------------|
-| thermal-plant-app | 8501 | Main Streamlit application |
-| mlflow | 5001 | MLflow tracking server |
-| postgres | 5432 | PostgreSQL database |
-| redis | 6379 | Redis cache |
-| influxdb | 8086 | InfluxDB time-series database |
-| mqtt | 1883 | MQTT broker |
-| grafana | 3000 | Grafana monitoring dashboard |
-| prometheus | 9090 | Prometheus metrics collection |
-| minio | 9000 | S3-compatible storage |
-
-## 📈 Monitoring & Alerting
-
-### Metrics Collection
-- Application performance metrics
-- Model prediction accuracy
-- System resource utilization
-- Database performance metrics
-
-### Alerting Rules
-- Anomaly detection alerts
-- Model performance degradation
-- System health issues
-- Data quality problems
-
-### Visualization
-- Grafana dashboards for system monitoring
-- Prometheus metrics for alerting
-- Custom Streamlit visualizations
-- MLflow experiment tracking
-
-## 🧪 Testing
+### Install in development mode
 
 ```bash
-# Run unit tests
+pip install -e .
+```
+
+### Run tests
+
+```bash
 pytest tests/
-
-# Run with coverage
-pytest --cov=mlops_thermal_plant tests/
-
-# Run integration tests
-pytest tests/integration/
 ```
 
-## 🚀 Deployment
+### Code quality
 
-### Development Environment
 ```bash
-docker-compose -f docker-compose.yml up -d
+black mlops_thermal_plant/
+flake8 mlops_thermal_plant/
+mypy mlops_thermal_plant/
 ```
 
-### Production Environment
-```bash
-# Use production Dockerfile
-docker-compose -f docker-compose.prod.yml up -d
+## Usage Examples
 
-# Or deploy to Kubernetes
-kubectl apply -f k8s/
+### Train Models
+
+```python
+from mlops_thermal_plant.core.models import EnsembleModel
+from mlops_thermal_plant.core.data import DataProcessor
+
+# Load and process data
+processor = DataProcessor()
+X_train, X_test = processor.load_and_prepare_data()
+
+# Train ensemble model
+model = EnsembleModel()
+model.train(X_train)
+predictions = model.predict(X_test)
 ```
 
-### Environment Variables
-```bash
-# Database connections
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=thermal_plant_db
-POSTGRES_USER=thermal_user
-POSTGRES_PASSWORD=thermal_password
+### Start IoT Simulation
 
-# MLflow
-MLFLOW_TRACKING_URI=postgresql://user:pass@host:port/db
+```python
+from mlops_thermal_plant.iot import SensorSimulator, MQTTClient
 
-# MQTT
-MQTT_BROKER_HOST=localhost
-MQTT_BROKER_PORT=1883
+# Initialize components
+simulator = SensorSimulator()
+mqtt_client = MQTTClient()
+
+# Start simulation
+simulator.start()
+mqtt_client.subscribe("thermal_plant/sensors")
 ```
 
-## 🤝 Contributing
+## Monitoring & Alerts
+
+The system provides comprehensive monitoring:
+- Real-time sensor metrics visualization
+- Anomaly detection alerts
+- Model performance tracking
+- System health dashboards
+
+## Documentation
+
+Detailed documentation is available in the `docs/` directory:
+- [Beginner's Guide](docs/BEGINNER_GUIDE.md)
+- [Complete System Explanation](docs/COMPLETE_EXPLANATION.md)
+- [Testing & Deployment Guide](docs/TESTING_AND_DEPLOYMENT_GUIDE.md)
+- [Code Structure Diagram](docs/CODE_STRUCTURE_DIAGRAM.txt)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Thermal power plant domain knowledge and data simulation
-- MLOps best practices and tools integration
-- IoT protocols and sensor data handling
-- Real-time monitoring and alerting systems
+- Built for industrial IoT monitoring and predictive maintenance
+- Uses industry-standard MLOps practices
+- Inspired by real-world thermal power plant operations
 
-## 📞 Support
+## Contact
 
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the documentation in the `docs/` folder
-- Review the configuration examples in `config/`
+Omendra Tomar - [@omendra02](https://github.com/omendra02)
 
----
-
-**Built with ❤️ for thermal power plant operations and MLOps excellence**
+Project Link: [https://github.com/omendra02/mlops-thermal-plant](https://github.com/omendra02/mlops-thermal-plant)

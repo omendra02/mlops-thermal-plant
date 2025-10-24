@@ -4,10 +4,28 @@ __pycache__/
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
 venv/
 ENV/
 env/
+.virtualenv/
 
 # IDE
 .vscode/
@@ -15,53 +33,77 @@ env/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
 
 # OS
 .DS_Store
 Thumbs.db
+*.bak
 
 # Model files (large binary files)
-model/*.pkl
-model/*.h5
-model/*.pt
-model/*.pth
+model/
+models/
 *.pkl
 *.h5
+*.pt
+*.pth
+*.onnx
+*.pb
 
-# Data files (can be large)
+# Data files (can be large - keep only scripts)
 data/*.csv
 data/*.pdf
 data/*.parquet
 data/*.json
-!data/generate_data.py
+data/*.xlsx
+data/*.db
+
+# MLflow
+mlruns/
+mlartifacts/
 
 # Sensitive configuration files
 config/database_config.yaml
 config/mqtt_config.yaml
 *.env
+.env
 .env.*
 secrets/
 credentials/
+*_credentials.*
+*_secrets.*
 
 # Logs
 *.log
 logs/
-mlruns/
+*.log.*
 
 # Jupyter Notebook
 .ipynb_checkpoints/
-*.ipynb
+*.ipynb_checkpoints/
 
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
 
 # Docker
 .dockerignore
+docker-compose.override.yml
 
 # Backup files
-*.bak
 *.backup
 backup/
 backups/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
